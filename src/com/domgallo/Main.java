@@ -6,12 +6,13 @@ public class Main {
 
     public static void main(String[] args) {
 	// write your code here
+        Client c = null;
         try {
-            Client c = new Client("localhost", 4423);
+            c = new Client("localhost", 4423);
+
+            c.getSocket().close();
         } catch ( IOException e){
             System.out.println(e);
         }
-
-
     }
 }

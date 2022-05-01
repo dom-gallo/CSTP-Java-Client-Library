@@ -3,8 +3,6 @@ package com.domgallo;
 import java.io.*;
 import java.net.Socket;
 import java.net.UnknownHostException;
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
 
 public class Client {
     private Socket socket;
@@ -24,8 +22,8 @@ public class Client {
             socket = new Socket(ipAddress, port);
             System.out.println("Connected");
 
-            // takes input from terminal
-            input  = new DataInputStream(System.in);
+            // takes input from socket
+            input  = new DataInputStream(socket.getInputStream());
 
             // sends output to the socket
             output = new DataOutputStream(socket.getOutputStream());
@@ -35,40 +33,47 @@ public class Client {
             System.out.println(i);
         }
 
-//        char opCode = '@';
-//        String text = "This was added by a ByteArrayOutputStream";
-//        byte[] payload = text.getBytes();
-//        for(int a = 0; a < payload.length; a++){
-//            System.out.print(String.format("%02x ", payload[a]));
-//        }
-//        byte[] payloadByteLength = ByteBuffer.allocate(4).putInt(payload.length).order(ByteOrder.BIG_ENDIAN).array();
-//        int payloadLength = payload.length;
-//        int messageLength = (1 + payloadByteLength.length+ payload.length);
-//        byte opcodeByte = (byte) opCode;
-//        byte[] message = new byte[messageLength];
-//        //op code
-//        ByteArrayOutputStream out = new ByteArrayOutputStream();
-//        out.write(opCode);
-//        out.write(payloadByteLength);
-//        out.write(payload);
+        Serializable javaObjectPayload = new TestObject("Hello From Object Serializer");
 
-//        message[0] = opcodeByte;
-//        // data size
-//        for(int j = 1; j < 5; j++){
-//            message[j] = payloadByteLength[j - 1];
-//        }
-//        //data
-//        for(int j = 5; j < payloadLength+5; j++){
-//            message[j] = payload[j - 5];
-//        }
-//        for(int k = 0; k < messageLength; k++){
-//            System.out.print( String.format("%02x ", message[k]));
-//        }
-        TestMessage aTestMessage = new TestMessage("Hello From Object Serializer");
-        CSTPMessage myMessage = new CSTPMessage(OpCode.OP_GET, aTestMessage, "123");
-        byte[] data = myMessage.generateRequest();
-//        output.write(out.toByteArray());
-        output.write(data);
+        // Class returns an object encapsulating all data
+        CSTPMessage myMessage = new CSTPMessage(OpCode.OP_GET, javaObjectPayload, "myKey");
+        // returns a byte[] based off of the message
+//        byte[] data = myMessage.getRequestBytes();
+//        System.out.println("Sending data to server");
+//        output.write(data);
+        boolean didSend = sendCSTPRequest(myMessage);
+        if(!didSend)
+        {
+            System.out.println("Couldn't send message");
+        }
+        socket.shutdownOutput();
+        byte[] responseBuffer = input.readAllBytes();
+        for(int i = 0; i < responseBuffer.length; i++){
+            System.out.print(String.format("%02x ", responseBuffer[i]));
+        }
+        System.out.print("\n");
+        TestObject objectA = null;
+        ByteArrayInputStream byteToObjectStream = new ByteArrayInputStream(responseBuffer);
+        ObjectInputStream ois = new ObjectInputStream(byteToObjectStream);
+        try {
+            objectA = (TestObject) ois.readObject();
+            System.out.println("objectA message = " + objectA.getMessage());
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+    }
+    public boolean sendCSTPRequest(CSTPMessage message){
+        try {
+            byte[] data = message.getRequestBytes();
+            output.write(data);
+            return true;
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+    public Socket getSocket(){
+        return this.socket;
     }
 }
 

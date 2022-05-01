@@ -2,10 +2,10 @@ package com.domgallo;
 
 import java.io.Serializable;
 
-public class TestMessage implements Serializable {
+public class TestObject implements Serializable {
     public String message;
 
-    public TestMessage(String message){
+    public TestObject(String message){
         this.message = message;
     }
 
