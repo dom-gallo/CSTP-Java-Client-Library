@@ -6,7 +6,14 @@ import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
-
+/*
+*   TODO:
+*    1. Add Object<Class> getObjectWithKey(String key, Class clazz)
+*    2. add int updateObjectWithKey(String key, Object:Serializable o)
+*    3. add int insertObjectWithKey(String key, Object:Serializable o)
+*    4. add int deleteForKey(String key)
+*
+* */
 public class CSTPMessage {
     private OpCode opcode;
     private Serializable payload;
