@@ -12,7 +12,7 @@ import java.nio.ByteOrder;
 *    2. add int updateObjectWithKey(String key, Object:Serializable o)
 *    3. add int insertObjectWithKey(String key, Object:Serializable o)
 *    4. add int deleteForKey(String key)
-*
+*    5. get better at programming
 * */
 public class CSTPMessage {
     private OpCode opcode;
